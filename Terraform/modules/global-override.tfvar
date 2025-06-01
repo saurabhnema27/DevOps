@@ -1,0 +1,4 @@
+# ------------------ Variables are written here ----------------
+region = "ap-south-1"
+role_arn = ""
+external_id = ""
