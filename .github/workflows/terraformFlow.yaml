@@ -23,5 +23,14 @@ jobs:
         run: |
           echo "✅ Base credentials configured."
 
-      - name: doing terraform init
-        run: cd Terraform/modules/vpc && terraform init  
+      - name: Prepare Terraform directory
+        run: |
+          mkdir -p Terraform/run
+          cp -r Terraform/modules/vpc/* Terraform/run/
+          cp Terraform/modules/global-override.tfvars Terraform/run/
+
+      - name: Terraform Init and Plan with tfvars
+        working-directory: Terraform/run
+        run: |
+          terraform init --reconfigure
+          terraform plan -var-file="global-override.tfvars" -out=tfplan
