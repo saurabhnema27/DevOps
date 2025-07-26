@@ -19,10 +19,7 @@ jobs:
           echo "✅ Base credentials configured."
 
       - name: Verify assumed role identity
-        run: aws configure list
-
-      - name: List S3 buckets with assumed role
-        run: aws s3 ls
+        run: aws sts get-caller-identity
 
       - name: doing terraform init
         run: cd terraform/module/vpc && terraform init  
