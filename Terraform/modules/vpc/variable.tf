@@ -9,3 +9,11 @@ variable "external_id" {
 variable "role_arn" {
   default = null
 }
+
+variable "vpc_cidr" {
+  default = null
+}
+
+variable "environment" {
+  default = null
+}
