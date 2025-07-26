@@ -19,4 +19,4 @@ jobs:
           echo "✅ Base credentials configured."
 
       - name: doing terraform init
-        run: cd terraform/module/vpc && terraform init  
+        run: cd Terraform/module/vpc && terraform init  
