@@ -26,12 +26,13 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           ROLE_ARN="arn:aws:iam::557690577575:role/terraform-role"
-          SESSION_NAME="gterraform-user-role"
+          SESSION_NAME="terraform-user-role"
           EXTERNAL_ID="terraform-user"  # optional if your trust policy requires it
 
           CREDS=$(aws sts assume-role \
             --role-arn "$ROLE_ARN" \
             --role-session-name "$SESSION_NAME" \
+            --external-id "$EXTERNAL_ID" \
             --duration-seconds 900 \
             --output json)
 
