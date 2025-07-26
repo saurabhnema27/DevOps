@@ -17,6 +17,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           echo "✅ Base credentials configured."
+          echo aws configure list
 
       - name: Assume role manually and export credentials
         id: assume
