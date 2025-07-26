@@ -1,7 +1,7 @@
 # ------------------ Variables are written here ----------------
 region = "ap-south-1"
 role_arn = "arn:aws:iam::557690577575:role/terraform-role"
-external_id = "terraform-users"
+external_id = "terraform-user"
 
 # -------- tags ------
 environment = "testing-env"
