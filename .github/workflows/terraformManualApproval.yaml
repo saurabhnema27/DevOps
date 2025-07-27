@@ -40,7 +40,7 @@ jobs:
 
             mkdir -p Terraform/run/$module
             cp -r Terraform/modules/$module/* Terraform/run/$module/
-            cp Terraform/env/global-override.tfvars Terraform/run/$module/
+            cp Terraform/modules/global-override.tfvars Terraform/run/$module/
 
             cd Terraform/run/$module
             terraform init
