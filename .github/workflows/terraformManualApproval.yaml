@@ -44,7 +44,7 @@ jobs:
 
             cd Terraform/run/$module
             terraform init
-            terraform plan -var-file="$module.tfvars" -out=tfplan
+            terraform plan -var-file="global-override.tfvars" -out=tfplan
             cd ../../../..
           done
 
