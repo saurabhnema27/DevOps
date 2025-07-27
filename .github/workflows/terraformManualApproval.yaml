@@ -39,6 +39,7 @@ jobs:
             cp Terraform/modules/global-override.tfvars Terraform/run/
 
             cd Terraform/run/$module
+            ls
 
             echo "📦 Initializing Terraform..."
             terraform init
