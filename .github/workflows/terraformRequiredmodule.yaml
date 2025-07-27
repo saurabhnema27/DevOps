@@ -7,8 +7,6 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
 
-    environment: manual-approval  # GitHub environment with reviewers set
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
