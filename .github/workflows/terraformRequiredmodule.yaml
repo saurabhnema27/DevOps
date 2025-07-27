@@ -2,6 +2,15 @@ name: Terraform Multi-Module Runner
 
 on:
   workflow_dispatch:
+    inputs:
+      apply_changes:
+        description: "Do you want to apply Terraform changes?"
+        required: true
+        default: "no"
+        type: choice
+        options:
+          - "yes"
+          - "no"
 
 jobs:
   terraform:
@@ -25,8 +34,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Read modules and run terraform
+      - name: Read modules and copying file to new folder
         id: run_terraform
+        env: 
+          TERRAFORM_WORKING_DIR: Terraform/run/$module
         run: |
           set -e
 
@@ -40,33 +51,22 @@ jobs:
 
             cd Terraform/run/$module
 
-            echo "📦 Initializing Terraform..."
-            terraform init
-
-            echo "📝 Planning Terraform..."
-            terraform plan -var-file="global-override.tfvars" -out=tfplan
-
-            echo "🔒 Pausing for manual approval before apply..."
-
-            echo "::notice file=$module::Please manually approve or cancel apply step for module: $module"
-
-            echo "terraform apply -auto-approve will be run next for $module if manually approved"
-            
-            cd ../../../..
-
           done < Terraform/required-modules.txt
 
-      - name: Wait for approval before apply
-        run: echo "⏳ Waiting for manual approval..."
-        # GitHub will pause here based on environment protection rule
-
-      - name: Apply each module
+      - name: Terraform Init and Plan
+        working-directory: ${{ env.TERRAFORM_WORKING_DIR }}
         run: |
-          set -e
+          terraform init
+          terraform plan -var-file="vpc.tfvars" -out=tfplan
 
-          while IFS= read -r module || [[ -n "$module" ]]; do
-            echo "✅ Applying Terraform for module: $module"
-            cd Terraform/run/$module
-            terraform apply tfplan
-            cd ../../../..
+      - name: Conditionally Apply
+        if: github.event.inputs.apply_changes == 'yes'
+        working-directory: ${{ env.TERRAFORM_WORKING_DIR }}
+        run: |
+          echo "✅ Applying Terraform..."
+          terraform apply -auto-approve tfplan
           done < Terraform/required-modules.txt
+
+      - name: Skipped Apply
+        if: github.event.inputs.apply_changes != 'yes'
+        run: echo "❌ Skipping Terraform apply as per user input."    
