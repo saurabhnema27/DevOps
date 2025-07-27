@@ -43,20 +43,8 @@ jobs:
 
             echo "📝 Planning Terraform..."
             terraform plan -var-file="global-override.tfvars" -out=tfplan
-
-            echo "🔒 Pausing for manual approval before apply..."
-
-            echo "::notice file=$module::Please manually approve or cancel apply step for module: $module"
-
-            echo "terraform apply -auto-approve will be run next for $module if manually approved"
             
-            cd ../../../..
-
           done < Terraform/required-modules.txt
-
-      - name: Wait for approval before apply
-        run: echo "⏳ Waiting for manual approval..."
-        # GitHub will pause here based on environment protection rule
 
       - name: Apply each module
         run: |
