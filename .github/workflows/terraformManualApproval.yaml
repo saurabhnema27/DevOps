@@ -1,0 +1,72 @@
+name: Terraform Multi-Module Runner
+
+on:
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    environment: manual-approval  # GitHub environment with reviewers set
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.8.3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Read modules and run terraform
+        id: run_terraform
+        run: |
+          set -e
+
+          while IFS= read -r module || [[ -n "$module" ]]; do
+            echo "🔧 Working on module: $module"
+
+            # Create working directory
+            mkdir -p Terraform/run/$module
+            cp -r Terraform/modules/$module/* Terraform/run/$module/
+            cp Terraform/modules/global-override.tfvars Terraform/run/
+
+            cd Terraform/run/$module
+
+            echo "📦 Initializing Terraform..."
+            terraform init
+
+            echo "📝 Planning Terraform..."
+            terraform plan -var-file="global-override.tfvars" -out=tfplan
+
+            echo "🔒 Pausing for manual approval before apply..."
+
+            echo "::notice file=$module::Please manually approve or cancel apply step for module: $module"
+
+            echo "terraform apply -auto-approve will be run next for $module if manually approved"
+            
+            cd ../../../..
+
+          done < Terraform/required-modules.txt
+
+      - name: Wait for approval before apply
+        run: echo "⏳ Waiting for manual approval..."
+        # GitHub will pause here based on environment protection rule
+
+      - name: Apply each module
+        run: |
+          set -e
+
+          while IFS= read -r module || [[ -n "$module" ]]; do
+            echo "✅ Applying Terraform for module: $module"
+            cd Terraform/run/$module
+            terraform apply tfplan
+            cd ../../../..
+          done < Terraform/required-modules.txt
