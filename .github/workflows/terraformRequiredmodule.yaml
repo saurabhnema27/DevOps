@@ -46,6 +46,11 @@ jobs:
             
           done < Terraform/required-modules.txt
 
+      - name: Await Approval Before Apply
+        environment:
+          name: manual-approval   # Make sure this environment has manual approval enabled
+        run: echo "Waiting for manual approval..."    
+
       - name: Apply each module
         run: |
           set -e
